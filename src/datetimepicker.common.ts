@@ -1,28 +1,45 @@
 import { Observable } from 'tns-core-modules/data/observable';
-import * as app from 'tns-core-modules/application';
-import * as dialogs from 'tns-core-modules/ui/dialogs';
+import { Color } from 'tns-core-modules/color';
 
-export class Common extends Observable {
-  public message: string;
-
-  constructor() {
-    super();
-    this.message = Utils.SUCCESS_MSG();
-  }
-
-  public greet() {
-    return "Hello, NS";
-  }
+export interface ICommon {
+  setColor(color: Color)
+  showAsPicker(asPicker: boolean)
+  autoDismiss(dismiss: boolean)
+  setThemeDark(isThemeDark: boolean)
 }
 
-export class Utils {
-  public static SUCCESS_MSG(): string {
-    let msg = `Your plugin is working on ${app.android ? 'Android' : 'iOS'}.`;
+export interface IDatePicker extends ICommon {
+  setMinDate(minDate: Date)
+  setMaxDate(maxData: Date)
+  showYearPickerFirst(showYearFirst: boolean)
+}
 
-    setTimeout(() => {
-      dialogs.alert(`${msg} For real. It's really working :)`).then(() => console.log(`Dialog closed.`));
-    }, 2000);
+export interface ITimePicker extends ICommon {
+  setMinTime(minTime: Time)
+  setMaxTime(maxTime: Time)
+}
 
-    return msg;
+export interface IDateTimePicker extends IDatePicker, ITimePicker {
+
+}
+
+export class Time {
+  constructor(public hour: number, public minute: number) {
+
+  }
+
+  public isAM() {
+    return this.hour < 12;
+  }
+
+  public isPM() {
+    return !this.isAM();
+  }
+
+  toDate(): Date {
+    const date = new Date()
+    date.setUTCHours(this.hour, this.minute)
+
+    return date
   }
 }

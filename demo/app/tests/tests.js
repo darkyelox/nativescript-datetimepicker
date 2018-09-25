@@ -1,5 +1,5 @@
-var Datetimepicker = require("nativescript-datetimepicker").Datetimepicker;
-var datetimepicker = new Datetimepicker();
+var DatetimePicker = require("nativescript-datetimepicker").DatetimePicker;
+var datetimepicker = new DatetimePicker();
 
 describe("greet function", function() {
     it("exists", function() {
