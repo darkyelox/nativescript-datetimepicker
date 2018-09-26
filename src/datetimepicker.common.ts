@@ -36,10 +36,26 @@ export class Time {
     return !this.isAM();
   }
 
+  public asAM() {
+    return this.hour < 12 ? this.hour % 12 : this.hour
+  }
+
+  public asPM() {
+    return this.hour >= 12 ? (this.hour + 12) % 24 : this.hour
+  }
+
   toDate(): Date {
     const date = new Date()
     date.setUTCHours(this.hour, this.minute)
 
     return date
+  }
+
+  private leadingZero(number: number) {
+    return ("00" + number).substr(-2,2)
+  }
+
+  toString(): string {
+    return `${this.isAM() ? this.leadingZero(this.asAM()) : this.leadingZero(this.asPM()) }:${this.leadingZero(this.minute)} ${ this.isAM() ? 'AM' : 'PM'}`
   }
 }

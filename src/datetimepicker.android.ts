@@ -1,4 +1,4 @@
-import { IDateTimePicker, Time } from './datetimepicker.common';
+import { IDateTimePicker, Time, IDatePicker, ITimePicker } from './datetimepicker.common';
 import * as app from 'tns-core-modules/application';
 import { Subject } from 'rxjs';
 import { Color } from 'tns-core-modules/color';
@@ -23,7 +23,7 @@ export class DatetimePicker implements IDateTimePicker {
         const datePickerListener = new DatePickerDialog.OnDateSetListener({
             onDateSet: (view, year, monthOfYear, dayOfMonth) => {
                 this.selectedDate = new Date(year, monthOfYear, dayOfMonth)
-                
+
                 this.timePicker.show(app.android.startActivity.getFragmentManager(), 'TIME_PICKER_DIALOG')
                 /* this.dateSubject.next(selectedDate)
                 this.dateSubject.complete() */
@@ -32,8 +32,9 @@ export class DatetimePicker implements IDateTimePicker {
 
         const timePickerListener = new TimePickerDialog.OnTimeSetListener({
             onTimeSet: (view, hour, minute, second) => {
+                console.log(hour, minute)
                 // const selectedTime = new Time(timepoint.getHour(), timepoint.getMinute())
-                this.selectedDate.setUTCHours(hour, minute, second)
+                this.selectedDate.setHours(hour, minute, second)
 
                 this.dateSubject.next(this.selectedDate)
                 this.dateSubject.complete()
@@ -63,28 +64,28 @@ export class DatetimePicker implements IDateTimePicker {
     }
 
     setMinDate(minDate: Date) {
-        const calendar = new Calendar()
-        calendar.set(minDate.getUTCFullYear(), minDate.getUTCMonth(), minDate.getUTCDay())
+        const calendar = Calendar.getInstance()
+        calendar.set(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())
 
         this.datePicker.setMinDate(calendar)
     }
 
     setMaxDate(maxData: Date) {
-        const calendar = new Calendar()
-        calendar.set(maxData.getUTCFullYear(), maxData.getUTCMonth(), maxData.getUTCDay())
+        const calendar = Calendar.getInstance()
+        calendar.set(maxData.getFullYear(), maxData.getMonth(), maxData.getDate())
 
         this.datePicker.setMaxDate(calendar)
     }
 
     setMinTime(minTime: Time) {
         const timepoint = new Timepoint(minTime.hour, minTime.minute)
-        
+
         this.timePicker.setMinTime(timepoint)
     }
 
     setMaxTime(maxTime: Time) {
         const timepoint = new Timepoint(maxTime.hour, maxTime.minute)
-        
+
         this.timePicker.setMaxTime(timepoint)
     }
 
@@ -98,6 +99,124 @@ export class DatetimePicker implements IDateTimePicker {
         this.datePicker.show(app.android.startActivity.getFragmentManager(), 'DATE_PICKER_DIALOG')
 
         return this.dateSubject
+            .toPromise()
+    }
+}
+
+export class DatePicker implements IDatePicker {
+    private datePicker
+    private dateSubject: Subject<Date>
+
+    constructor() {
+        const datePickerListener = new DatePickerDialog.OnDateSetListener({
+            onDateSet: (view, year, monthOfYear, dayOfMonth) => {
+                const selectedDate = new Date(year, monthOfYear, dayOfMonth)
+
+                this.dateSubject.next(selectedDate)
+                this.dateSubject.complete()
+            }
+        })
+
+        this.datePicker = DatePickerDialog.newInstance(datePickerListener)
+    }
+
+    setColor(color: Color) {
+        this.datePicker.setAccentColor(color.android)
+    }
+
+    showAsPicker(asPicker: boolean) {
+        throw new Error("Method not implemented.");
+    }
+
+    autoDismiss(dismiss: boolean) {
+        this.datePicker.autoDismiss(dismiss)
+    }
+
+    setThemeDark(isThemeDark: boolean) {
+        this.datePicker.setThemeDark(isThemeDark)
+    }
+
+    setMinDate(minDate: Date) {
+        const calendar = Calendar.getInstance()
+        calendar.set(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())
+
+        this.datePicker.setMinDate(calendar)
+    }
+
+    setMaxDate(maxData: Date) {
+        const calendar = Calendar.getInstance()
+        calendar.set(maxData.getFullYear(), maxData.getMonth(), maxData.getDate())
+
+        this.datePicker.setMaxDate(calendar)
+    }
+
+    showYearPickerFirst(showYearFirst: boolean) {
+        this.datePicker.showYearPickerFirst(showYearFirst)
+    }
+
+
+    public show(): Promise<Date> {
+        this.dateSubject = new Subject()
+
+        this.datePicker.show(app.android.startActivity.getFragmentManager(), 'DATE_PICKER_DIALOG')
+
+        return this.dateSubject
+            .toPromise()
+    }
+}
+
+export class TimePicker implements ITimePicker {
+    private timePicker
+    private timeSubject: Subject<Time>
+
+    constructor() {
+        const timePickerListener = new TimePickerDialog.OnTimeSetListener({
+            onTimeSet: (view, hour, minute, second) => {
+                const selectedTime = new Time(hour, minute)
+
+                this.timeSubject.next(selectedTime)
+                this.timeSubject.complete()
+            }
+        })
+
+
+        this.timePicker = TimePickerDialog.newInstance(timePickerListener, false)
+    }
+
+    setColor(color: Color) {
+        this.timePicker.setAccentColor(color.android)
+    }
+
+    showAsPicker(asPicker: boolean) {
+        throw new Error("Method not implemented.");
+    }
+
+    autoDismiss(dismiss: boolean) {
+        throw new Error("Method not implemented.");
+    }
+
+    setThemeDark(isThemeDark: boolean) {
+        this.timePicker.setThemeDark(isThemeDark)
+    }
+
+    setMinTime(minTime: Time) {
+        const timepoint = new Timepoint(minTime.hour, minTime.minute)
+
+        this.timePicker.setMinTime(timepoint)
+    }
+
+    setMaxTime(maxTime: Time) {
+        const timepoint = new Timepoint(maxTime.hour, maxTime.minute)
+
+        this.timePicker.setMaxTime(timepoint)
+    }
+
+    show(): Promise<Time> {
+        this.timeSubject = new Subject()
+
+        this.timePicker.show(app.android.startActivity.getFragmentManager(), 'TIME_PICKER_DIALOG')
+
+        return this.timeSubject
             .toPromise()
     }
 }
