@@ -50,6 +50,18 @@ export class DatetimePicker implements IDateTimePicker {
         this.timePicker.setAccentColor(color.android)
     }
 
+    setTitlesTextColor(color: Color) {
+        // TODO: set for android
+    }
+    
+    setTextColor(color: Color) {
+        // TODO: set for android
+    }
+
+    setBackgroundColor(color: Color) {
+        // TODO: set for android
+    }
+
     showAsPicker(asPicker: boolean) {
         // TODO: show as a simplePicker
     }
@@ -124,6 +136,18 @@ export class DatePicker implements IDatePicker {
         this.datePicker.setAccentColor(color.android)
     }
 
+    setTitlesTextColor(color: Color) {
+        // TODO: set for android
+    }
+    
+    setTextColor(color: Color) {
+        // TODO: set for android
+    }
+
+    setBackgroundColor(color: Color) {
+        // TODO: set for android
+    }
+
     showAsPicker(asPicker: boolean) {
         throw new Error("Method not implemented.");
     }
@@ -187,12 +211,24 @@ export class TimePicker implements ITimePicker {
         this.timePicker.setAccentColor(color.android)
     }
 
+    setTitlesTextColor(color: Color) {
+        // TODO: set for android
+    }
+    
+    setTextColor(color: Color) {
+        // TODO: set for android
+    }
+
+    setBackgroundColor(color: Color) {
+        // TODO: set for android
+    }
+
     showAsPicker(asPicker: boolean) {
-        throw new Error("Method not implemented.");
+        // TODO:
     }
 
     autoDismiss(dismiss: boolean) {
-        throw new Error("Method not implemented.");
+        // TODO:
     }
 
     setThemeDark(isThemeDark: boolean) {

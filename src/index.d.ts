@@ -3,6 +3,9 @@ import { Color } from 'tns-core-modules/color';
 
 export declare class DatetimePicker implements IDateTimePicker {
   setColor(color: Color): void;
+  setTitlesTextColor(color: Color)
+  setTextColor(color: Color)
+  setBackgroundColor(color: Color)
   showAsPicker(asPicker: boolean): void;
   autoDismiss(dismiss: boolean): void;
   setThemeDark(isThemeDark: boolean): void;
@@ -16,6 +19,9 @@ export declare class DatetimePicker implements IDateTimePicker {
 
 export declare class DatePicker implements IDatePicker {
   setColor(color: Color): void;
+  setTitlesTextColor(color: Color)
+  setTextColor(color: Color)
+  setBackgroundColor(color: Color)
   showAsPicker(asPicker: boolean): void;
   autoDismiss(dismiss: boolean): void;
   setThemeDark(isThemeDark: boolean): void;
@@ -27,6 +33,9 @@ export declare class DatePicker implements IDatePicker {
 
 export declare class TimePicker implements ITimePicker {
   setColor(color: Color): void;
+  setTitlesTextColor(color: Color)
+  setTextColor(color: Color)
+  setBackgroundColor(color: Color)
   showAsPicker(asPicker: boolean): void;
   autoDismiss(dismiss: boolean): void;
   setThemeDark(isThemeDark: boolean): void;

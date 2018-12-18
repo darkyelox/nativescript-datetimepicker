@@ -34,10 +34,14 @@ export function onDateTap(args) {
     const datePicker = new DatePicker()
     datePicker.showYearPickerFirst(true)
     datePicker.setThemeDark(true)
-    datePicker.setColor(new Color('green'))
+    datePicker.setColor(new Color('blue'))
+    datePicker.setTitlesTextColor(new Color('white'))
+    datePicker.setTextColor(new Color('white'))
+    datePicker.setBackgroundColor(new Color('cyan'))
     datePicker.autoDismiss(true)
 
     datePicker.show().then(selectedDate => {
+        console.log(selectedDate)
         model.date = selectedDate
         model.notifyPropertyChange('date', selectedDate)
     })

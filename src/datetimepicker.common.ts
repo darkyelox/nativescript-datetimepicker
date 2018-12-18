@@ -3,6 +3,9 @@ import { Color } from 'tns-core-modules/color';
 
 export interface ICommon {
   setColor(color: Color)
+  setTitlesTextColor(color: Color)
+  setTextColor(color: Color)
+  setBackgroundColor(color: Color)
   showAsPicker(asPicker: boolean)
   autoDismiss(dismiss: boolean)
   setThemeDark(isThemeDark: boolean)

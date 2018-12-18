@@ -1,0 +1,13 @@
+use_frameworks!
+pod 'FSCalendar', :git => 'https://github.com/WenchaoD/FSCalendar.git'
+pod 'NTMonthYearPicker', :git => 'https://github.com/darkyelox/NTMonthYearPicker.git', :commit => 'f5ba9d6f6890a0789f5ffd7d08a6aaaecfa94e03'
+pod 'Masonry', :git => 'https://github.com/SnapKit/Masonry.git'
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        # if target.name == 'FSCalendar'
+            target.build_configurations.each do |config|
+                config.build_settings['SWIFT_VERSION'] = '4.0'
+            end
+        # end
+    end
+end
