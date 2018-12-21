@@ -11,9 +11,21 @@ declare interface UIView {
 	mas_centerX: any
 	mas_centerY: any
 	mas_baseline: any
+	mas_safeAreaLayoutGuide: any
+	mas_safeAreaLayoutGuideLeading: any
+	mas_safeAreaLayoutGuideTrailing: any
+	mas_safeAreaLayoutGuideLeft: any
+	mas_safeAreaLayoutGuideRight: any
+	mas_safeAreaLayoutGuideTop: any
+	mas_safeAreaLayoutGuideBottom: any
+	mas_safeAreaLayoutGuideWidth: any
+	mas_safeAreaLayoutGuideHeight: any
+	mas_safeAreaLayoutGuideCenterX: any
+	mas_safeAreaLayoutGuideCenterY: any
 
 	mas_makeConstraints(block: (maker: MASConstraintMaker) => void)
 	mas_updateConstraints(block: (maker: MASConstraintMaker) => void)
+	mas_remakeConstraints(block: (maker: MASConstraintMaker) => void)
 }
 
 declare const enum MASAttribute {

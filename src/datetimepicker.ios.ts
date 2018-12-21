@@ -66,13 +66,13 @@ export class DatetimePicker implements IDateTimePicker {
 
 export class DatePicker implements IDatePicker {
 
-    private appViewController: UINavigationController
+    private appViewController: UIViewController
     private datePickerViewController: DatePickerModalViewController
 
     private dateSubject: Subject<Date>
 
     constructor() {
-        this.appViewController = (<UINavigationController>topmost().ios.controller)
+        this.appViewController = UIApplication.sharedApplication.keyWindow.rootViewController // (<UINavigationController>topmost().ios.controller)
         this.datePickerViewController = (DatePickerModalViewController.alloc() as DatePickerModalViewController).initPicker()
     }
 
@@ -119,7 +119,11 @@ export class DatePicker implements IDatePicker {
     public show(): Promise<Date> {
         dateSubject = new Subject()
 
-        this.appViewController.presentModalViewControllerAnimated(this.datePickerViewController, true)
+        this.datePickerViewController.modalPresentationStyle = UIModalPresentationStyle.FullScreen
+
+        this.appViewController.presentViewControllerAnimatedCompletion(this.datePickerViewController, true, () => {
+            this.appViewController.view.bringSubviewToFront(this.datePickerViewController.view)
+        })
 
         return dateSubject
             .toPromise()
@@ -171,6 +175,7 @@ declare const UIEdgeInsetsMake
 class DatePickerModalViewController extends UIViewController implements FSCalendarDataSource, FSCalendarDelegate, FSCalendarDelegateAppearance, MonthYearPickerViewDelegate {
     private calendar: FSCalendar
     private toggleMonthYearPickerView: UIView
+    private cancelButton: UIButton
     private doneButton: UIButton
 
     public embedController: EmbedController
@@ -266,7 +271,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
 
         const toggleMonthYearPickerTap = UITapGestureRecognizer.alloc().initWithTargetAction(this, 'onToggleMonthYearPickerView')
 
-        const view: UIView = UIView.alloc().initWithFrame(UIScreen.mainScreen.bounds)
+        const view: UIView = UIView.alloc().initWithFrame(UIApplication.sharedApplication.keyWindow.bounds)
         view.backgroundColor = this.backgroundColor.ios
         this.view = view
 
@@ -287,6 +292,13 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
         toggleMonthYearPickerView.addGestureRecognizer(toggleMonthYearPickerTap)
         this.view.addSubview(toggleMonthYearPickerView)
 
+        const cancelButton = UIButton.alloc().init()
+        cancelButton.setTitleForState('cancel', UIControlState.Normal)
+        cancelButton.setTitleColorForState(this.titlesTextColor.ios, UIControlState.Normal)
+        cancelButton.addTargetActionForControlEvents(this, 'onCancel', UIControlEvents.TouchUpInside)
+        this.view.addSubview(cancelButton)
+
+
         const doneButton = UIButton.alloc().init()
         doneButton.setTitleForState('ok', UIControlState.Normal)
         doneButton.setTitleColorForState(this.titlesTextColor.ios, UIControlState.Normal)
@@ -295,6 +307,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
 
         this.calendar = calendar
         this.toggleMonthYearPickerView = toggleMonthYearPickerView
+        this.cancelButton = cancelButton
         this.doneButton = doneButton
 
         this.view.setNeedsUpdateConstraints()
@@ -315,6 +328,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
         this.calendar.appearance.titleSelectionColor = this.textColor.ios
         this.calendar.appearance.todayColor = this.color.ios
 
+        this.cancelButton.setTitleColorForState(this.titlesTextColor.ios, UIControlState.Normal)
         this.doneButton.setTitleColorForState(this.titlesTextColor.ios, UIControlState.Normal)
 
         this.view.backgroundColor = this.backgroundColor.ios
@@ -329,14 +343,24 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
     }
 
     updateViewConstraints() {
-        const padding = UIEdgeInsetsMake(10, 10, 10, 10);
+        this.view.mas_updateConstraints((maker: MASConstraintMaker) => {
+            maker.edges.equalTo()(UIApplication.sharedApplication.keyWindow).with().insets()(UIApplication.sharedApplication.keyWindow.mas_safeAreaLayoutGuide)
+        })
+
         const viewSize = this.view.frame.size
 
         this.doneButton.mas_updateConstraints((maker: MASConstraintMaker) => {
-            maker.width.equalTo()(50)
+            maker.width.equalTo()(80)
             maker.height.equalTo()(50)
-            maker.bottom.equalTo()(this.view.mas_bottom)
-            maker.right.equalTo()(this.view.mas_right)
+            maker.bottom.equalTo()(this.view.mas_safeAreaLayoutGuideBottom)
+            maker.right.equalTo()(this.view.mas_safeAreaLayoutGuideRight)
+        })
+
+        this.cancelButton.mas_updateConstraints((maker: MASConstraintMaker) => {
+            maker.width.equalTo()(80)
+            maker.height.equalTo()(50)
+            maker.bottom.equalTo()(this.view.mas_safeAreaLayoutGuideBottom)
+            maker.left.equalTo()(this.view.mas_safeAreaLayoutGuideLeft)
         })
 
         if (this.monthYearPickerViewController != null) {
@@ -362,10 +386,10 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
             })
             this.calendar.collectionViewLayout.invalidateLayout()
         } else {
-            this.calendar.mas_updateConstraints((maker: MASConstraintMaker) => {
-                maker.top.equalTo()(this.view.mas_top)
-                maker.right.equalTo()(this.view.mas_right)
-                maker.left.equalTo()(this.view.mas_left)
+            this.calendar.mas_remakeConstraints((maker: MASConstraintMaker) => {
+                maker.top.equalTo()(this.view.mas_safeAreaLayoutGuideTop)
+                maker.right.equalTo()(this.view.mas_safeAreaLayoutGuideRight)
+                maker.left.equalTo()(this.view.mas_safeAreaLayoutGuideLeft)
                 maker.bottom.equalTo()(this.doneButton.mas_top)
             })
 
@@ -396,7 +420,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
         super.updateViewConstraints()
     }
 
-    public onToggleMonthYearPickerView(tapGesture: UITapGestureRecognizer) {
+    onToggleMonthYearPickerView(tapGesture: UITapGestureRecognizer) {
         if (!this.embedController.contains(this.monthYearPickerViewController)) {
             const controller = (MonthYearPickerViewController.new() as MonthYearPickerViewController)
             controller.setColor(this.color)
@@ -415,14 +439,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
         this.view.setNeedsUpdateConstraints()
     }
 
-    public onDone(tapGesture: UITapGestureRecognizer) {
-        dateSubject.next(this.calendar.selectedDate)
-        dateSubject.complete()
-
-        this.dismissModalViewControllerAnimated(true)
-    }
-
-    public removeMonthYearPickerView() {
+    removeMonthYearPickerView() {
         this.embedController.remove(this.monthYearPickerViewController)
         this.monthYearPickerViewController = null
         this.view.setNeedsUpdateConstraints()
@@ -439,7 +456,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
     }
 
     calendarAppearanceTitleDefaultColorForDate?(calendar: FSCalendar, appearance: FSCalendarAppearance, date: Date): UIColor {
-        if(isSameMonth(calendar.currentPage, date)) {
+        if(isSameMonth(calendar.currentPage, date) && this.isBetweenMinMax(date)) {
             return this.textColor.ios as UIColor
         } else {
             return UIColor.grayColor
@@ -459,19 +476,30 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
         if (currentDate) {
             selectedDate.setDate(currentDate.getDate())
         }
-        
-        let setDate = true
         if (this.minDate != undefined  && compareAsc(selectedDate, this.minDate) != 1) {
-            setDate = false
-        }
-
-        if(setDate && this.maxDate != undefined && compareDesc(selectedDate, this.maxDate) != 1) {
-            setDate = false
-        }
-
-        if (setDate) {
+            this.calendar.selectDateScrollToDate(this.minDate, true)
+        } else if(this.maxDate != undefined && compareDesc(selectedDate, this.maxDate) != 1) {
+            this.calendar.selectDateScrollToDate(this.maxDate, true)
+        } else {
             this.calendar.selectDateScrollToDate(selectedDate, true)
         }
+    }
+
+    onDone(tapGesture: UITapGestureRecognizer) {
+        dateSubject.next(this.calendar.selectedDate)
+        dateSubject.complete()
+
+        this.dismissModalViewControllerAnimated(true)
+    }
+
+    onCancel(tapGesture: UITapGestureRecognizer) {
+        dateSubject.complete()
+
+        this.dismissModalViewControllerAnimated(true)
+    }
+
+    private isBetweenMinMax(date: Date): boolean {
+        return (this.minDate == undefined  || compareAsc(date, this.minDate) == 1) && (this.maxDate == undefined || compareDesc(date, this.maxDate) == 1)
     }
 
     public static ObjCProtocols = [FSCalendarDelegate, FSCalendarDelegateAppearance, FSCalendarDataSource]
@@ -479,6 +507,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
     public static ObjCExposedMethods = {
         onToggleMonthYearPickerView: { returns: interop.types.void, params: [UITapGestureRecognizer] },
         onDone: { returns: interop.types.void, params: [UITapGestureRecognizer] },
+        onCancel: { returns: interop.types.void, params: [UITapGestureRecognizer] },
     }
 }
 
@@ -527,7 +556,7 @@ class MonthYearPickerViewController extends UIViewController {
 
         const monthYearPickerSize = monthYearPicker.sizeThatFits(CGSizeZero)
 
-        const view: UIView = UIView.alloc().initWithFrame(CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, monthYearPickerSize.height + 50))
+        const view: UIView = UIView.alloc().initWithFrame(CGRectMake(0, 0, UIApplication.sharedApplication.keyWindow.bounds.size.width, monthYearPickerSize.height + 50))
         if (this.backgroundColor != undefined) {
             view.backgroundColor = this.backgroundColor.ios
         }
@@ -535,14 +564,12 @@ class MonthYearPickerViewController extends UIViewController {
 
         monthYearPicker.addTargetActionForControlEvents(this, 'onMonthYearPicked', UIControlEvents.ValueChanged)
         if (this.textColor != undefined) {
-            // monthYearPicker.tintColor = this.textColor.ios
             monthYearPicker.selectionColor = this.textColor.ios
-            // TODO: change the color of picker, need to do a fork of repository and add a color property
         }
         monthYearPicker.datePickerMode = NTMonthYearPickerMode.MonthAndYear;
         this.view.addSubview(monthYearPicker)
 
-        doneButton.setTitleForState('ok', UIControlState.Normal)
+        doneButton.setTitleForState('close', UIControlState.Normal)
         if (this.titlesTextColor != undefined) {
             doneButton.setTitleColorForState(this.titlesTextColor.ios, UIControlState.Normal)
         }
@@ -567,15 +594,15 @@ class MonthYearPickerViewController extends UIViewController {
         const monthYearPickerSize = this.monthYearPicker.sizeThatFits(CGSizeZero)
 
         this.view.mas_updateConstraints((maker: MASConstraintMaker) => {
-            maker.width.equalTo()(UIScreen.mainScreen.bounds.size.width)
-            maker.height.equalTo()(monthYearPickerSize.height + 50)
+            maker.width.equalTo()(UIApplication.sharedApplication.keyWindow.bounds.size.width).with().insets()(this.view.mas_safeAreaLayoutGuideWidth)
+            maker.height.equalTo()(monthYearPickerSize.height + 50).with().insets()(this.view.mas_safeAreaLayoutGuideTop)
         })
 
         this.doneButton.mas_updateConstraints((maker: MASConstraintMaker) => {
-            maker.width.equalTo()(50)
+            maker.width.equalTo()(80)
             maker.height.equalTo()(50)
-            maker.top.equalTo()(this.view.mas_top)
-            maker.right.equalTo()(this.view.mas_right)
+            maker.right.equalTo()(this.view.mas_safeAreaLayoutGuideRight);
+            maker.top.equalTo()(this.view.mas_safeAreaLayoutGuideTop);
         })
 
         this.monthYearPicker.mas_updateConstraints((maker: MASConstraintMaker) => {
