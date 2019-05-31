@@ -489,13 +489,13 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
         dateSubject.next(this.calendar.selectedDate)
         dateSubject.complete()
 
-        this.dismissModalViewControllerAnimated(true)
+        this.dismissViewControllerAnimatedCompletion(true, null)
     }
 
     onCancel(tapGesture: UITapGestureRecognizer) {
         dateSubject.complete()
 
-        this.dismissModalViewControllerAnimated(true)
+        this.dismissViewControllerAnimatedCompletion(true, null)
     }
 
     private isBetweenMinMax(date: Date): boolean {
