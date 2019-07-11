@@ -40,7 +40,7 @@ export function onDateTap(args) {
     datePicker.setBackgroundColor(new Color('cyan'))
     datePicker.autoDismiss(true)
 
-    datePicker.show().then(selectedDate => {
+    datePicker.show(new Date()).then(selectedDate => {
         console.log(selectedDate)
         model.date = selectedDate
         model.notifyPropertyChange('date', selectedDate)
@@ -93,7 +93,7 @@ export function onDateMinMaxTap(args) {
     datePicker.setMinDate(new Date(2018, 6, 15))
     datePicker.setMaxDate(new Date(2020, 6, 15))
 
-    datePicker.show().then(selectedDate => {
+    datePicker.show(new Date()).then(selectedDate => {
         model.date = selectedDate
         model.notifyPropertyChange('dateMinMax', selectedDate)
     })

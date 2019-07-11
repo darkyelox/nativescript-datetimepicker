@@ -75,6 +75,10 @@ export class DatetimePicker implements IDateTimePicker {
         this.timePicker.setThemeDark(isThemeDark)
     }
 
+    setDate(date: Date) {
+        // TODO:
+    }
+
     setMinDate(minDate: Date) {
         const calendar = Calendar.getInstance()
         calendar.set(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())
@@ -105,7 +109,7 @@ export class DatetimePicker implements IDateTimePicker {
         this.datePicker.showYearPickerFirst(showYearFirst)
     }
 
-    public show(): Promise<Date> {
+    public show(date: Date): Promise<Date> {
         this.dateSubject = new Subject()
 
         this.datePicker.show(app.android.startActivity.getFragmentManager(), 'DATE_PICKER_DIALOG')
@@ -179,7 +183,7 @@ export class DatePicker implements IDatePicker {
     }
 
 
-    public show(): Promise<Date> {
+    public show(date: Date): Promise<Date> {
         this.dateSubject = new Subject()
 
         this.datePicker.show(app.android.startActivity.getFragmentManager(), 'DATE_PICKER_DIALOG')

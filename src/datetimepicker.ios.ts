@@ -116,7 +116,9 @@ export class DatePicker implements IDatePicker {
         this.datePickerViewController.showYearPickerFirst(showYearFirst)
     }
 
-    public show(): Promise<Date> {
+    public show(date: Date): Promise<Date> {
+        this.datePickerViewController.setDate(date)
+
         dateSubject = new Subject()
 
         this.datePickerViewController.modalPresentationStyle = UIModalPresentationStyle.FullScreen
@@ -188,6 +190,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
     private _showAsPicker: boolean
     private _autoDismiss: boolean
     private darkTheme: boolean
+    private date: Date
     private minDate: Date
     private maxDate: Date
     private yearPickerFirst: boolean
@@ -234,6 +237,14 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
         this.view.setNeedsUpdateConstraints()
     }
 
+    setDate(date: Date) {
+        this.date = date
+        this.calendar.selectDate(date)
+        this.calendar.reloadData()
+        this.view.setNeedsLayout()
+        this.view.setNeedsUpdateConstraints()
+    }
+
     setMinDate(minDate: Date) {
         this.minDate = minDate
         this.calendar.reloadData()
@@ -260,6 +271,7 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
         self.textColor = new Color('black')
         self.titlesTextColor = new Color('cyan')
         self.backgroundColor = new Color('white')
+        self.date = new Date()
 
         return self
     }
@@ -320,7 +332,6 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
     viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        this.calendar.selectDate(new Date())
         this.calendar.appearance.headerTitleColor = this.titlesTextColor.ios
         this.calendar.appearance.weekdayTextColor = this.titlesTextColor.ios
         this.calendar.appearance.todaySelectionColor = this.color.ios
@@ -427,6 +438,9 @@ class DatePickerModalViewController extends UIViewController implements FSCalend
             controller.setTitlesTextColor(this.titlesTextColor)
             controller.setTextColor(this.textColor)
             controller.setBackgroundColor(this.backgroundColor)
+
+            console.log('DATE', this.date)
+            controller.setDate(this.date)
             controller.setMinDate(this.minDate)
             controller.setMaxDate(this.maxDate)
             controller.delegate = this
@@ -524,6 +538,7 @@ class MonthYearPickerViewController extends UIViewController {
     private titlesTextColor: Color
     private textColor: Color
     private backgroundColor: Color
+    private date: Date
     private minDate: Date
     private maxDate: Date
 
@@ -540,6 +555,10 @@ class MonthYearPickerViewController extends UIViewController {
 
     setBackgroundColor(color: Color) {
         this.backgroundColor = color
+    }
+
+    public setDate(date: Date) {
+        this.date = date
     }
 
     public setMinDate(date: Date) {
@@ -585,6 +604,7 @@ class MonthYearPickerViewController extends UIViewController {
     viewDidAppear(animated: boolean) {
         super.viewDidAppear(animated)
 
+        this.monthYearPicker.date = this.date
         this.monthYearPicker.minimumDate = this.minDate
         this.monthYearPicker.maximumDate = this.maxDate
         this.monthYearPicker.selectionColor = this.textColor.ios

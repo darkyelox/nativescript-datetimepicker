@@ -28,7 +28,7 @@ export declare class DatePicker implements IDatePicker {
   setMinDate(minDate: Date): void;
   setMaxDate(maxData: Date): void;
   showYearPickerFirst(showYearFirst: boolean): void;
-  show(): Promise<Date>
+  show(date: Date): Promise<Date>
 }
 
 export declare class TimePicker implements ITimePicker {
